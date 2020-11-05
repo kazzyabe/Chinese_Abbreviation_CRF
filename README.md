@@ -11,3 +11,7 @@
 2. Tagged_ : tagged data, each characters are tagged with 'A' if included in abbreviation and 'N' otherwise
 * results are also included
 1. res_ : result files with abbreviation, original, gussed abbreviation
+
+## USAGE
+$ python abbreviate.py -f words.txt
+* include words which you want to abbreviate in each line
