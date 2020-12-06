@@ -13,5 +13,5 @@
 1. res_ : result files with abbreviation, original, gussed abbreviation
 
 ## USAGE
-$ python abbreviate.py -f words.txt
+$ python abbreviate_crf.py -f words.txt
 * include words which you want to abbreviate in each line
