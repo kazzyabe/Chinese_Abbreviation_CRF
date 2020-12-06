@@ -15,3 +15,7 @@
 ## USAGE
 $ python abbreviate_crf.py -f words.txt
 * include words which you want to abbreviate in each line
+
+## RESULT
+* on train: 0.8878108797952919
+* on test: 0.8235866843157867
