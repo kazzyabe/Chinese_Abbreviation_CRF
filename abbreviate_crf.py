@@ -12,7 +12,13 @@ parser.add_argument('-f', default="words.txt",
 
 args = parser.parse_args()
 
-pp.open()
+# pynlpir
+# pp.open()
+
+import spacy
+
+nlp = spacy.load("zh_core_web_md")
+
 # def char2features(word, i):
 #     '''
 #     word: whole word
@@ -57,18 +63,100 @@ pp.open()
         
 #     return features
 
+# def seg2dict(segmented):
+#     seg_ind = {}
+#     for i in range(len(segmented)):
+#         if i==0:
+#             seg_ind[i] = {'ini': 0,'end':len(segmented[i][0])}
+#         else:
+#             ini = seg_ind[i-1]['end']
+#             seg_ind[i] = {'ini':ini,'end':ini+len(segmented[i][0])}
+#     return seg_ind
+
+# def char2features(word, i):
+#     '''
+#     word: whole word
+#     i: index of character
+    
+#     return features
+#         where features is a dictionary containing:
+#             char: target character
+#     '''
+#     segmented = pp.segment(word)
+#     seg_ind = seg2dict(segmented)
+    
+#     # print(word)
+#     # print(seg_ind, i)
+    
+    
+#     for k in seg_ind.keys():
+#         end = seg_ind[k]['end']
+#         if i < end:
+#             seg_word = segmented[k][0]
+#             ini = seg_ind[k]['ini']
+#             posInSeg = i - ini
+#             POS_seg = segmented[k][1]
+#             break
+    
+#     if i >= end:
+#         seg_end = end
+#         seg_word = word[seg_end:]
+#         posInSeg = i - seg_end
+#         POS_seg = "noun"
+    
+#     features = {
+#         'bias': 1.0,
+#         'char': word[i],
+#         'i': i,
+#         'word length': len(word),
+#         'segment': seg_word,
+#         'position in seg': posInSeg,
+#         'POS of seg': POS_seg
+        
+#     }
+    
+#     # previous char info
+#     if i > 0:
+#         features['Prev'] = word[i-1]
+#         if i > 1:
+#             features['Prev2'] = word[i-2]
+#         else:
+#             features['Prev2'] = "None"
+#     else:
+#         features.update({
+#             'Prev': "None",
+#             'Prev2': "None"
+#         })
+    
+#     # post char info
+#     if i < len(word)-1:
+#         features['Post'] = word[i+1]
+#         if i < len(word)-2:
+#             features['Post2'] = word[i+2]
+#         else:
+#             features['Post2'] = "None"
+#     else:
+#         features.update({
+#             'Post': "None",
+#             'Post2': "None"
+#         })
+        
+#     return features
+
 def seg2dict(segmented):
     seg_ind = {}
-    for i in range(len(segmented)):
+    for i,t in enumerate(segmented):
         if i==0:
-            seg_ind[i] = {'ini': 0,'end':len(segmented[i][0])}
+            seg_ind[i] = {'ini': 0,'end':len(segmented[i].text)}
         else:
             ini = seg_ind[i-1]['end']
-            seg_ind[i] = {'ini':ini,'end':ini+len(segmented[i][0])}
+            seg_ind[i] = {'ini':ini,'end':ini+len(segmented[i].text)}
     return seg_ind
 
 def char2features(word, i):
     '''
+    SPACY
+    
     word: whole word
     i: index of character
     
@@ -76,27 +164,27 @@ def char2features(word, i):
         where features is a dictionary containing:
             char: target character
     '''
-    segmented = pp.segment(word)
+    segmented = nlp(word)
     seg_ind = seg2dict(segmented)
     
-    # print(word)
-    # print(seg_ind, i)
+#     print(word)
+#     print(seg_ind, i)
     
     
     for k in seg_ind.keys():
         end = seg_ind[k]['end']
         if i < end:
-            seg_word = segmented[k][0]
+            seg_word = segmented[k].text
             ini = seg_ind[k]['ini']
             posInSeg = i - ini
-            POS_seg = segmented[k][1]
+            POS_seg = segmented[k].pos_
             break
     
-    if i >= end:
-        seg_end = end
-        seg_word = word[seg_end:]
-        posInSeg = i - seg_end
-        POS_seg = "noun"
+#     if i >= end:
+#         seg_end = end
+#         seg_word = word[seg_end:]
+#         posInSeg = i - seg_end
+#         POS_seg = "noun"
     
     features = {
         'bias': 1.0,
@@ -141,8 +229,11 @@ def word2features(word):
     return [char2features(word, i) for i in range(len(word))]
 
 if __name__ == "__main__":
-    x_train = pickle.load(open("x_train_crf.p", "rb"))
-    y_train = pickle.load(open("y_train_crf.p", "rb"))
+    # pynlpir
+    # x_train = pickle.load(open("x_train_crf.p", "rb"))
+    # y_train = pickle.load(open("y_train_crf.p", "rb"))
+    x_train = pickle.load(open("x_train_crf_spacy.p", "rb"))
+    y_train = pickle.load(open("y_train_crf_spacy.p", "rb"))
 
     ## training
 
@@ -157,8 +248,8 @@ if __name__ == "__main__":
 
     if args.f == 'test':
         labels = list(crf.classes_)
-        x_test = pickle.load(open("x_test_crf.p", "rb"))
-        y_test = pickle.load(open("y_test_crf.p", "rb"))
+        x_test = pickle.load(open("x_test_crf_spacy.p", "rb"))
+        y_test = pickle.load(open("y_test_crf_spacy.p", "rb"))
         y_pred = crf.predict(x_test)
         res = metrics.flat_f1_score(y_test, y_pred,
                         average='weighted', labels=labels)
